@@ -1,0 +1,85 @@
+<link href="http://code.jquery.com/ui/1.11.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            SearchText();
+        });
+        function SearchText() {
+            $(".autosuggest").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        type: "POST",
+                        contentType: "application/json; charset=utf-8",
+                        url: "AutoFill.aspx/GetAutoCompleteData",
+                        data: "{'username':'" + $('#txtSearch').val() + "'}",
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.d.length > 0) {
+                                response($.map(data.d, function (item) {
+                                    return {
+                                        label: item.split('/')[0],
+                                        val: item.split('/')[1]
+                                    }
+                                }));
+                            }
+                            else {
+                                response([{ label: 'No Records Found', val: -1 }]);
+                            }
+                        },
+                        error: function (result) {
+                            alert("Error");
+                        }
+                    });
+                },
+                select: function (event, ui) {
+                    if (ui.item.val == -1) {
+                        return false;
+                    }
+                    $('#lblUserId').text(ui.item.val);
+                }
+            });
+        }
+    </script>
+    
+    <body>
+    <form id="form1" runat="server">
+        <div class="demo">
+            <asp:HiddenField ID="hdnId" runat="server" />
+            <div class="ui-widget">
+                <label for="tbAuto">Enter UserName: </label>
+                <input type="text" id="txtSearch" class="autosuggest" />
+            </div>
+            <div>&nbsp;</div>
+            <div>
+                Selected UserId:<b><label id="lblUserId" /></b>
+            </div>
+        </div>
+    </form>
+</body>
+
+
+---Code Beghind C#
+
+[WebMethod]
+    public static List<string> GetAutoCompleteData(string username)
+    {
+        List<string> result = new List<string>();
+        using (SqlConnection con = new SqlConnection("Data Source=VMSPDEV3;Initial Catalog=EIOM2;Persist Security Info=True;User ID=sa; Password=abcd@1234"))
+        {
+            using (SqlCommand cmd = new SqlCommand("Select UserId,displayname as UserName from USERMASTER where displayname LIKE '%'+@SearchText+'%'", con))
+            {
+                con.Open();
+                cmd.Parameters.AddWithValue("@SearchText", username);
+                SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
+                {
+                    result.Add(string.Format("{0}/{1}", dr["UserName"], dr["UserId"]));
+                }
+                return result;
+            }
+        }
+    }
+    
+    --Source 
+    https://www.aspdotnet-suresh.com/2015/06/jquery-autocomplete-textbox-in-aspnet-with-database-example-using-csharp-vbnet.html
