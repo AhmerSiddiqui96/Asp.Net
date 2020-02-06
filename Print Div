@@ -1,0 +1,20 @@
+<script language="javascript">
+    function printdiv(printpage) {
+        var headstr = "<html><head><title></title></head><body>";
+        var footstr = "</body>";
+        var newstr = document.all.item(printpage).innerHTML;
+        var oldstr = document.body.innerHTML;
+        newstr = newstr.replace("width:auto","width:500px;margin-left:100px");
+        document.body.innerHTML = headstr + newstr + footstr;
+        window.print();
+        document.body.innerHTML = oldstr;
+        return false;
+    }
+</script> 
+
+
+  <div class="col-md-12" id="div_print">
+  </dv>
+  
+  
+<input type="button" value="Print" onclick="printdiv('div_print');" class="btn btn-primary" id="Print" />
