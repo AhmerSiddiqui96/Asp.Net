@@ -1,0 +1,27 @@
+     static void Main(string[] args)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load(@"D:\Ahmer\Projects\ConsoleApp1\ConsoleApp1\XMLFILE1.xml");
+
+            XmlNodeList aNodes = doc.SelectNodes("/catalog/book");
+
+            foreach (XmlNode aNode in aNodes)
+            {
+                XmlAttribute idAttribute = aNode.Attributes["id"];
+
+                if (idAttribute != null)
+                {
+                    string currentValue = idAttribute.Value;
+
+                    if (!string.IsNullOrEmpty(currentValue) && currentValue == "bk102")
+                    {
+                        //XmlElement elem = doc.CreateElement("ITEM"); 
+                        //elem.InnerText = "Ahmer";
+                        //aNode.AppendChild(elem);
+                        aNode.RemoveChild(aNode.SelectNodes("ITEM")[0]);
+                        aNode.SelectNodes("author")[0].InnerText = DateTime.Now.ToString();
+                    }
+                }
+            }
+            doc.Save(@"D:\Ahmer\Projects\ConsoleApp1\ConsoleApp1\XMLFILE1.xml");
+        }
